@@ -1,16 +1,15 @@
-'use strict';
-
 /**
  * Survey definition, transcribed from "PhD_Research_Support_Survey.pdf".
- * Shared by the server (validation, admin summaries, CSV) and the browser
- * (rendering, via GET /api/survey).
+ * Used by the browser (rendering, validation, admin summaries, CSV export)
+ * and by scripts/build.js, which generates the matching Firestore security
+ * rules (firestore.rules) so the database enforces the same answer format.
  *
  * type: "multi"  -> checkboxes, optional `max` selections
  *       "single" -> radio buttons
  *       "text"   -> open-ended answer
  * An option with `other: true` asks the respondent to specify a value.
  */
-const survey = {
+export const survey = {
   title: 'Shaping the Next-Generation PhD & Research Support Platform',
   kicker: 'User Experience & Needs Survey',
   brand: 'Research Voices',
@@ -191,13 +190,13 @@ for (const q of survey.questions) {
   });
 }
 
-const OTHER_MAX = 200;
+export const OTHER_MAX = 200;
 
 /**
  * Validate and normalise a submitted answers object.
  * Returns { ok: true, answers } or { ok: false, errors: { qid: message } }.
  */
-function validateAnswers(input) {
+export function validateAnswers(input) {
   const errors = {};
   const answers = {};
   const src = input && typeof input === 'object' ? input : {};
@@ -247,7 +246,7 @@ function validateAnswers(input) {
 }
 
 /** Human-readable answer text for one question (used by CSV export). */
-function describeAnswer(q, a) {
+export function describeAnswer(q, a) {
   if (!a) return '';
   if (q.type === 'text') return a.text || '';
   return (a.selected || [])
@@ -258,5 +257,3 @@ function describeAnswer(q, a) {
     })
     .join(' | ');
 }
-
-module.exports = { survey, validateAnswers, describeAnswer, OTHER_MAX };

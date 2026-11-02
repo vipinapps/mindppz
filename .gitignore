@@ -1,6 +1,5 @@
 node_modules/
-.env
-data/*.json
-data/*.tmp
+.firebase/
+*-debug.log
 npm-debug.log*
 .DS_Store

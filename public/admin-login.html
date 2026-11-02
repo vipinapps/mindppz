@@ -31,32 +31,49 @@
       <p style="text-align:center;margin:18px 0 0;font-size:14px"><a href="/">← Back to survey</a></p>
     </form>
   </main>
-  <script src="/js/common.js"></script>
-  <script>
-    (function () {
-      const { api, topbar, ICONS } = window.RV;
-      document.getElementById('top').innerHTML = topbar('<a class="btn btn-admin" href="/">Survey</a>');
-      document.getElementById('lock').innerHTML = ICONS.lock;
-      const form = document.getElementById('form');
-      const err = document.getElementById('err');
-      const btn = document.getElementById('submit');
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        err.textContent = '';
-        const username = form.username.value.trim();
-        const password = form.password.value;
-        if (!username || !password) { err.textContent = 'Enter your username and password.'; return; }
-        btn.disabled = true; btn.textContent = 'Signing in…';
-        try {
-          await api('/api/admin/login', { method: 'POST', body: { username, password } });
-          window.location.href = '/admin';
-        } catch (ex) {
-          err.textContent = ex.message;
-          btn.disabled = false; btn.textContent = 'Sign in';
-          form.password.select();
+  <script type="module">
+    import { topbar, ICONS } from '/js/common.js';
+    import { F, services, adminEmail, errorText } from '/js/fb.js';
+
+    document.getElementById('top').innerHTML = topbar('<a class="btn btn-admin" href="/">Survey</a>');
+    document.getElementById('lock').innerHTML = ICONS.lock;
+    const form = document.getElementById('form');
+    const err = document.getElementById('err');
+    const btn = document.getElementById('submit');
+
+    async function isAdmin(fb) {
+      const u = fb.auth.currentUser;
+      if (!u) return false;
+      const snap = await F.getDoc(F.doc(fb.db, 'admins', u.uid));
+      return snap.exists();
+    }
+
+    const fbPromise = services('admin');
+    fbPromise.then(async (fb) => {
+      if (await isAdmin(fb).catch(() => false)) window.location.replace('/admin');
+    }).catch((e) => { err.textContent = errorText(e); });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      err.textContent = '';
+      const username = form.username.value.trim();
+      const password = form.password.value;
+      if (!username || !password) { err.textContent = 'Enter your username and password.'; return; }
+      btn.disabled = true; btn.textContent = 'Signing in…';
+      try {
+        const fb = await fbPromise;
+        await F.signInWithEmailAndPassword(fb.auth, adminEmail(username), password);
+        if (!(await isAdmin(fb))) {
+          await F.signOut(fb.auth);
+          throw new Error('This account is not an admin. Add its UID to the “admins” collection in Firestore (see README).');
         }
-      });
-    })();
+        window.location.href = '/admin';
+      } catch (ex) {
+        err.textContent = errorText(ex);
+        btn.disabled = false; btn.textContent = 'Sign in';
+        form.password.select();
+      }
+    });
   </script>
 </body>
 </html>
