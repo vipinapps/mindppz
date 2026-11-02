@@ -10,11 +10,15 @@ const DEMO_CONFIG = { apiKey: 'demo-api-key', authDomain: 'localhost', projectId
 let configPromise;
 function loadConfig() {
   configPromise ||= (async () => {
-    if (firebaseConfig && firebaseConfig.apiKey) return firebaseConfig;
+    let hosted = null;
     try {
       const res = await fetch('/__/firebase/init.json');
-      if (res.ok) return await res.json();
+      if (res.ok) hosted = await res.json();
     } catch (_) { /* not on Firebase Hosting */ }
+    // Under `npm run emulators` the local server reports a demo-* project: use the emulators.
+    if (LOCAL && hosted && String(hosted.projectId).startsWith('demo-')) return hosted;
+    if (firebaseConfig && firebaseConfig.apiKey) return firebaseConfig;
+    if (hosted) return hosted;
     if (LOCAL) return DEMO_CONFIG;
     throw new Error('Firebase is not configured. Deploy with Firebase Hosting or fill in public/js/firebase-config.js.');
   })();

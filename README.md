@@ -48,7 +48,7 @@ Your survey is live at `https://web-app-7ac8f.web.app`. Share that link.
 
 To deploy to a different Firebase project, run `npx firebase use --add` first.
 
-On Firebase Hosting, the site loads its Firebase settings automatically, so you don't need to paste any config. To host the files somewhere else, paste your `firebaseConfig` into `public/js/firebase-config.js` and add that domain under **Authentication → Settings → Authorized domains**.
+The web app settings for `web-app-7ac8f` are already in `public/js/firebase-config.js`. To use a different Firebase project, register a Web app there and paste its `firebaseConfig` into that file. If you host the files outside Firebase Hosting, also add that domain under **Authentication → Settings → Authorized domains**.
 
 ## Changing things
 
