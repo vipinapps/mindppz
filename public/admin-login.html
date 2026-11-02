@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <title>Admin Login · Research Voices</title>
+</head>
+<body>
+  <div id="top"></div>
+  <main class="container">
+    <form class="card admin-login" id="form" novalidate>
+      <div class="lock" id="lock"></div>
+      <h1>Admin panel</h1>
+      <p class="muted" style="margin:0 0 20px">Sign in to view survey results.</p>
+      <div class="form-field">
+        <label for="username">Username</label>
+        <input class="input" id="username" name="username" autocomplete="username" required autofocus>
+      </div>
+      <div class="form-field">
+        <label for="password">Password</label>
+        <input class="input" id="password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <p class="error-text" id="err" role="alert" style="min-height:21px;margin:4px 0 12px"></p>
+      <button class="btn btn-primary" type="submit" id="submit" style="width:100%">Sign in</button>
+      <p style="text-align:center;margin:18px 0 0;font-size:14px"><a href="/">← Back to survey</a></p>
+    </form>
+  </main>
+  <script src="/js/common.js"></script>
+  <script>
+    (function () {
+      const { api, topbar, ICONS } = window.RV;
+      document.getElementById('top').innerHTML = topbar('<a class="btn btn-admin" href="/">Survey</a>');
+      document.getElementById('lock').innerHTML = ICONS.lock;
+      const form = document.getElementById('form');
+      const err = document.getElementById('err');
+      const btn = document.getElementById('submit');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        err.textContent = '';
+        const username = form.username.value.trim();
+        const password = form.password.value;
+        if (!username || !password) { err.textContent = 'Enter your username and password.'; return; }
+        btn.disabled = true; btn.textContent = 'Signing in…';
+        try {
+          await api('/api/admin/login', { method: 'POST', body: { username, password } });
+          window.location.href = '/admin';
+        } catch (ex) {
+          err.textContent = ex.message;
+          btn.disabled = false; btn.textContent = 'Sign in';
+          form.password.select();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
