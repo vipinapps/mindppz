@@ -41,11 +41,12 @@ You need Node.js 20+ on your computer.
 ```bash
 npm install
 npx firebase login
-npx firebase use --add          # pick your project; it replaces "your-firebase-project-id" in .firebaserc
-npm run deploy                  # builds, then deploys Hosting + Firestore rules
+npm run deploy                  # builds, then deploys Hosting + Firestore rules to the project in .firebaserc (web-app-7ac8f)
 ```
 
-Your survey is live at `https://<project-id>.web.app`. Share that link.
+Your survey is live at `https://web-app-7ac8f.web.app`. Share that link.
+
+To deploy to a different Firebase project, run `npx firebase use --add` first.
 
 On Firebase Hosting, the site loads its Firebase settings automatically, so you don't need to paste any config. To host the files somewhere else, paste your `firebaseConfig` into `public/js/firebase-config.js` and add that domain under **Authentication → Settings → Authorized domains**.
 
